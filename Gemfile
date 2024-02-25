@@ -30,11 +30,12 @@ gem "tzinfo-data", platforms: %i[mswin mswin64 mingw x64_mingw jruby]
 
 # Development and Test group
 group :development, :test do
+  gem 'byebug'
   gem 'faker'
-  gem "dotenv-rails"
-  gem "rspec-rails", "~> 5.0.0"
+  gem 'dotenv-rails'
+  gem 'rspec-rails', '~> 5.0.0'
   gem 'factory_bot_rails', '~> 6.0'
-  gem "debug", platforms: %i[mri mswin mswin64 mingw x64_mingw]
+  gem 'debug', platforms: %i[mri mswin mswin64 mingw x64_mingw]
 end
 
 # Development-only gems
