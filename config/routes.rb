@@ -11,12 +11,14 @@ Rails.application.routes.draw do
     resource :receipt, only: [:show, :create, :destroy]
   end
 
+  resources :receipts, only: [:new, :create, :show, :edit, :update, :destroy]
+
   # My Clients & Projects
   resources :clients, only: [:new, :create, :show, :index]
   resources :projects, only: [:new, :create, :show, :index]
 
   # My invoices
   resources :invoices, only: [:new, :create, :show, :index] do
-    resources :invoice_items, only: [:create, :update, :destroy]
+    resources :invoice_items, only: [:create, :update, :destroy], shallow: true
   end
 end
