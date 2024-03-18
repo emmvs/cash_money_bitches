@@ -1,0 +1,23 @@
+.btn-dashboard-purple {
+  padding: 44px 24px;
+  border-radius: 10px;
+  background: rgba(76, 0, 97, 0.1);
+  position: relative;
+  overflow: hidden;
+  color: $header-primary !important;
+  min-width: 100px;
+  
+  &:before {
+    content: "";
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background: inherit;
+    filter: blur(20px);
+    margin: -20px;
+  }
+  
+  a {
+    text-decoration: none;
+    position: relative;
+  }
+}
