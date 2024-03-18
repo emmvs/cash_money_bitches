@@ -1,0 +1,11 @@
+@media (max-width: 768px) { // This is for tablets, adjust as necessary
+  .container.mb-5.d-flex {
+    flex-wrap: wrap;
+    justify-content: space-around; // This will spread out the buttons evenly
+
+    .btn-dashboard-purple {
+      flex-basis: 48%; // Adjust the percentage as needed, 48% for a bit of spacing between two buttons
+      margin-bottom: 10px; // Add some space between the stacked buttons
+    }
+  }
+}
