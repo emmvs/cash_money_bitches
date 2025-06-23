@@ -40,3 +40,6 @@
 *.swp
 .DS_Store
 .env*
+
+# Finanzguru export (private)
+20250623-Export-Alle_Buchungen.xlsx
