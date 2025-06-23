@@ -28,6 +28,9 @@ gem "devise"
 # Platform-specific gems
 gem "tzinfo-data", platforms: %i[mswin mswin64 mingw x64_mingw jruby]
 
+# File uploads
+gem "roo"
+
 # Development and Test group
 group :development, :test do
   gem 'byebug'
