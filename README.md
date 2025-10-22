@@ -22,15 +22,11 @@ I'm a freelancer with a full-time job, which means filing both EÜR and EST. The
 
 ## ✨ Key Features
 
-- Import financial transactions from Finanzguru (CSV)
-- Tag-based categorization system
-- Track transaction metadata:
-  - `elster_bucket` - Tax category (e.g., "Arbeitsmittel", "Bürobedarf")
-  - `is_business` - Business vs. personal
-  - `receipt` - Have a receipt?
-  - `eigenbeleg` - Created self-made receipt?
-  - `reviewed` - Processed?
-- Export summaries by Elster category
+- Import financial transactions from Finanzguru (TSV format)
+- Tag-based categorization system with custom tags
+- Review untagged transactions to catch deductible expenses
+- Track receipts and Eigenbelege
+- Export summaries for EÜR and EST
 - Invoice generation (future)
 - Elster XML integration (dream)
 
@@ -156,7 +152,61 @@ rake reports:missing_receipts
 
 ## 🧰 Tech Stack
 
-Rails 7.1 • PostgreSQL • Terminal UI (for now)
+Rails 8.0 • Ruby 3.3 • PostgreSQL • Terminal UI (for now)
+
+---
+
+## 🏷️ Tag System
+
+Your Finanzguru tags are already set up! Here's how they work together:
+
+### Budget Categories (Pick ONE - for 50/30/20 tracking)
+- **`Necessities`** - Essential expenses (~€1,500/month target)
+- **`Späß`** - Fun money (~€1,000/month target)
+- **`Sparen`** - Savings (~€500/month target)
+- **`Invest`** - Investments (~€500/month target)
+- **`Privat`** - Private expenses (not for budget tracking)
+
+### Tax Status (Add to mark deductibility)
+- **`EÜR`** - Deductible for freelance (always itemize)
+- **`EST`** - Deductible for employee work (app calculates if > €1,230 Pauschale)
+- **`Privat`** - Explicitly NOT deductible
+- **`Reimbursed`** - Employer paid you back (NOT deductible)
+- **`Spende`** - Donation (deductible as Sonderausgaben)
+
+### Receipt Tracking (Add if applicable)
+- **`Receipt`** - Have a physical/digital receipt
+- **`Eigenbeleg`** - Self-created receipt (for when you couldn't get one)
+
+### Work Type (For categorization & analysis)
+- **`Geschäftlich`** - Full-time job work expense
+- **`Freelance`** - Freelance work expense
+- **`Travel (Geschäftlich)`** - Work travel for full-time job
+- **`Travel (Freelance)`** - Work travel for freelance
+- **`Travel (Späß)`** - Personal travel
+
+### Income Tracking
+- **`Gehalt`** - Salary from full-time job
+- **`Honorar`** - Freelance payment received
+- **`Einkünfte aus Kapitalvermögen`** - Investment income (taxes auto-deducted)
+
+### Tagging Examples:
+- Laptop for freelancing: `Necessities`, `Freelance`, `EÜR`, `Receipt`
+- Coffee with client: `Necessities`, `Freelance`, `EÜR`, `Receipt`
+- Deutsche Bahn to office (reimbursed): `Necessities`, `Geschäftlich`, `Travel (Geschäftlich)`, `Reimbursed`, `Receipt`
+- Work book: `Necessities`, `Geschäftlich`, `EST`, `Receipt`
+- Netflix: `Späß`, `Privat`
+- Vacation flight: `Späß`, `Travel (Späß)`, `Privat`
+- Emergency fund: `Sparen`
+- Freelance income: `Honorar`, `EÜR`
+
+### Deductible Logic (Auto-calculated by app):
+- ✅ **Deductible = true**: Has `EÜR` OR `EST` OR `Spende`
+- ❌ **Deductible = false**: Has `Privat` OR `Reimbursed`
+- ⚠️ **Needs Review = nil**: 
+  - No tags at all
+  - Has `Geschäftlich` or `Eigenbeleg` but missing `EÜR`/`EST`
+  - Has budget category but no tax status
 
 ---
 

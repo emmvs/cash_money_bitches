@@ -10,9 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_02_14_140425) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_22_185005) do
   # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
+  enable_extension "pg_catalog.plpgsql"
 
   create_table "clients", force: :cascade do |t|
     t.string "client_name"
@@ -52,6 +52,42 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_14_140425) do
     t.index ["company_id"], name: "index_invoices_on_company_id"
   end
 
+  create_table "money_transaction_tags", force: :cascade do |t|
+    t.bigint "money_transaction_id", null: false
+    t.bigint "tag_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["money_transaction_id", "tag_id"], name: "idx_on_money_transaction_id_tag_id_226f103e22", unique: true
+    t.index ["money_transaction_id"], name: "index_money_transaction_tags_on_money_transaction_id"
+    t.index ["tag_id"], name: "index_money_transaction_tags_on_tag_id"
+  end
+
+  create_table "money_transactions", force: :cascade do |t|
+    t.string "external_id"
+    t.date "date"
+    t.text "description"
+    t.integer "amount_cents", default: 0
+    t.string "currency", default: "EUR"
+    t.string "direction"
+    t.string "source_file"
+    t.string "raw_tags"
+    t.string "elster_bucket"
+    t.boolean "is_business"
+    t.boolean "receipt", default: false
+    t.boolean "eigenbeleg", default: false
+    t.boolean "reviewed", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "deductible"
+    t.boolean "reimbursed"
+  end
+
+  create_table "tags", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -70,4 +106,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_14_140425) do
   add_foreign_key "companies", "users"
   add_foreign_key "invoices", "clients"
   add_foreign_key "invoices", "companies"
+  add_foreign_key "money_transaction_tags", "money_transactions"
+  add_foreign_key "money_transaction_tags", "tags"
 end

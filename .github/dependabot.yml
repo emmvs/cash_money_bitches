@@ -1,0 +1,35 @@
+version: 2
+updates:
+  # Keep Bundler dependencies up to date
+  - package-ecosystem: "bundler"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    # Group minor and patch updates together
+    groups:
+      rails:
+        patterns:
+          - "rails*"
+          - "actionpack"
+          - "activerecord"
+          - "activesupport"
+      development:
+        dependency-type: "development"
+      patch-and-minor:
+        update-types:
+          - "patch"
+          - "minor"
+    # Labels for easier filtering
+    labels:
+      - "dependencies"
+      - "bundler"
+
+  # Keep GitHub Actions up to date (if you add any)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "github-actions"

@@ -1,4 +1,70 @@
 #!/usr/bin/env ruby
+
+
+# TODO
+# 1. Extract your 2024 entries
+# 2. Split into two universes (Est & EUR)
+# 3. Map your tags to Elster categories
+# 4. Generate totals
+
+# ```ruby
+# - You are my tax person, make sure I dont have to pay any fees
+# - I want to use the script and make sure that there are no expenses that I have missed and could have deducted
+# - so Ideally I want to use the script to create real instances in my database and check each instance that does not have any tags
+# - Ask me questions if you need to clarify anything
+# ```
+
+# ### Tags
+
+# All my finances are separated into these main tags:
+
+# - `Geschäftlich` → Always Deductible
+# - `Necessities` → May be Privat or Deductible
+# - `Späß` → Always Privat
+# - `Privat` → Always Privat
+
+# Then I have:
+
+# - `Sparen` → Always Privat
+# - `Spende` → Always Deductible
+# - `Invest`→ Always Privat
+# - `Privat`
+
+# If I have a receipt I will tag the expense with
+
+# - `Receipt` → May be Privat or Deductible (but usually Deductible)
+# - `Eigenbeleg`  (If I need to add a receipt myself as it was not possible for me to get one) → → Always Deductible (I would not do this is it wasny)
+
+# For my full time job
+
+# - `1K5°`  → May be deductable I guess but I think this tag is more for when they deduct something for me and I get the money back)
+# - `Geschäftlich` → Always Deductible
+# - `Travel (Geschäftlich)` → Always Deductible
+# - `Gehalt` → I deed to track for Est
+# - `Est` → Is important for Est (duh)
+
+# For my freelance work
+
+# - `Freelance` → Is important for EUR / Always Deductible
+# - `Travel (Freelance)` → Is important for EUR / Always Deductible
+# - `Honorar` → I deed to track for EUR
+# - `EÜR` → same
+
+# More
+
+# - `Einkünfte aus Kapitalvermögen` → which basically means my App already makes sure taxes are deducted
+# - `Travel (Späß)` → Privat
+
+# ### **Taxes (The Guilt Monster)**
+
+# - [ ]  Open Elster/Finanzguru tab without instantly alt-tabbing
+# - [ ]  Sort income: freelance gigs + full-time job
+# - [ ]  Add expenses you actually remember (travel, home office, Bahn, client lunches)
+# - [ ]  Check Finanzguru tags for missing receipts
+# - [ ]  Draft return and save it. Don’t you dare “close without saving.”
+# - **Reward:** Monster shrinks, you can sleep at night, no Finanzamt anxiety dreams
+
+
 require 'roo'
 require 'date'
 require 'zip' # Suppress ZIP warnings
@@ -10,7 +76,7 @@ xlsx = Roo::Excelx.new('20250623-Export-Alle_Buchungen.xlsx')
 # Read header row and remaining data
 header = xlsx.row(1)
 rows = (2..xlsx.last_row).map do |i|
-  Hash[header.zip(xlsx.row(i))]
+  header.zip(xlsx.row(i)).to_h
 end
 
 # Group by year + type + tag
@@ -42,14 +108,10 @@ rows.each do |row|
   yearly_totals[year][key] += amount
 
   # ➕ Personal spending summary
-  if type == "Ausgaben" && %w[Späß Investieren Necessities].include?(tag)
-    monthly_by_tag[year_month][tag] += amount
-  end
+  monthly_by_tag[year_month][tag] += amount if type == "Ausgaben" && %w[Späß Investieren Necessities].include?(tag)
 
   # ➕ Tax-relevant tracking
-  if %w[ESt EÜR Freelance Necessities].any? { |k| tag&.include?(k) }
-    tax_relevant_totals[year] += amount
-  end
+  tax_relevant_totals[year] += amount if %w[ESt EÜR Freelance Necessities].any? { |k| tag&.include?(k) }
 end
 
 # ✅ Original yearly breakdown
