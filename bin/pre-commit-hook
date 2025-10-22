@@ -1,0 +1,115 @@
+#!/bin/bash
+# Copy this file to .git/hooks/pre-commit to enable the security check
+# Run: cp bin/pre-commit-hook .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+
+echo "🔍 Running pre-commit security check..."
+
+# Check if any CSV/Excel/Numbers files are staged
+SENSITIVE_FILES=$(git diff --cached --name-only | grep -E '\.(csv|xlsx|xls|numbers|dump|sql|age|gpg)$' || true)
+
+if [ ! -z "$SENSITIVE_FILES" ]; then
+    echo ""
+    echo "❌ COMMIT BLOCKED! Sensitive data files detected:"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "$SENSITIVE_FILES"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "These file types should NEVER be committed to this public repo!"
+    echo ""
+    echo "To unstage: git reset HEAD <file>"
+    echo ""
+    exit 1
+fi
+
+# Check if any files in db/data/ are staged (except allowed directories)
+DATA_FILES=$(git diff --cached --name-only | grep '^db/data/' | grep -v 'schema_samples' | grep -v '\.keep$' || true)
+
+if [ ! -z "$DATA_FILES" ]; then
+    echo ""
+    echo "❌ COMMIT BLOCKED! Real data files in db/data/ detected:"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "$DATA_FILES"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "Only schema_samples/ should be committed, never real transaction data!"
+    echo ""
+    echo "To unstage: git reset HEAD <file>"
+    echo ""
+    exit 1
+fi
+
+# Check for .env files (except .env.example)
+ENV_FILES=$(git diff --cached --name-only | grep -E '^\.env' | grep -v '\.env\.example$' | grep -v '\.env\.erb$' || true)
+
+if [ ! -z "$ENV_FILES" ]; then
+    echo ""
+    echo "❌ COMMIT BLOCKED! Environment files detected:"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "$ENV_FILES"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "Only .env.example should be committed!"
+    echo ""
+    echo "To unstage: git reset HEAD <file>"
+    echo ""
+    exit 1
+fi
+
+# Check for secret/key files
+SECRET_FILES=$(git diff --cached --name-only | grep -E '(local_secret|\.key$|\.pem$|\.p12$|\.pfx$)' || true)
+
+if [ ! -z "$SECRET_FILES" ]; then
+    echo ""
+    echo "❌ COMMIT BLOCKED! Secret/key files detected:"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "$SECRET_FILES"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "Secret and key files should NEVER be committed!"
+    echo ""
+    echo "To unstage: git reset HEAD <file>"
+    echo ""
+    exit 1
+fi
+
+# Check for Elster XML files with real data
+ELSTER_FILES=$(git diff --cached --name-only | grep -E '(\.elster|_elster\.xml|elster_.*\.xml)' || true)
+
+if [ ! -z "$ELSTER_FILES" ]; then
+    echo ""
+    echo "⚠️  WARNING! Elster XML files detected:"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "$ELSTER_FILES"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    read -p "Do these files contain NO personal tax data? (yes/no): " response
+    if [ "$response" != "yes" ]; then
+        echo ""
+        echo "❌ Commit cancelled - keep your tax data private!"
+        echo ""
+        exit 1
+    fi
+fi
+
+# Check for PDF exports
+PDF_EXPORTS=$(git diff --cached --name-only | grep -E '^(tmp/exports|tmp/pdfs|public/invoices|public/exports)/' || true)
+
+if [ ! -z "$PDF_EXPORTS" ]; then
+    echo ""
+    echo "❌ COMMIT BLOCKED! Generated PDF/export files detected:"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "$PDF_EXPORTS"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "Generated exports should not be committed!"
+    echo ""
+    echo "To unstage: git reset HEAD <file>"
+    echo ""
+    exit 1
+fi
+
+# All checks passed!
+echo "✅ Security check passed - no sensitive data detected"
+echo ""
+
+exit 0
