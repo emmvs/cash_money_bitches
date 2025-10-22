@@ -4,42 +4,114 @@
 # or operating system, you probably want to add a global ignore instead:
 #   git config --global core.excludesfile '~/.gitignore_global'
 
-# Ignore bundler config.
-/.bundle
+# All financial data exports (Finanzguru, bank statements, etc.)
+*.xlsx
+*.xls
+*.csv
+*.numbers
+*.ods
+!/db/data/schema_samples/*.csv  # Only allow example/schema CSVs
 
-# Ignore all environment files (except templates).
-/.env*
-!/.env*.erb
+# Database dumps and backups
+db/backups/
+*.dump
+*.dump.gz
+*.sql
 
-# Ignore all logfiles and tempfiles.
-/log/*
-/tmp/*
-!/log/.keep
-!/tmp/.keep
+# ALL data files in db/data/ - contains real transaction data
+/db/data/**/*
+!/db/data/.keep
+!/db/data/schema_samples/
+!/db/data/schema_samples/.keep
 
-# Ignore pidfiles, but keep the directory.
-/tmp/pids/*
-!/tmp/pids/
-!/tmp/pids/.keep
+# Environment files, secrets, keys, credentials
+.env*
+!.env*.erb
+!.env.example
+/config/master.key
+/config/credentials/*.key
+tmp/local_secret.txt
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.age
+*.gpg
 
-# Ignore storage (uploaded files in development and any SQLite databases).
+# Elster XML files (may contain personal tax data)
+*.elster
+*_elster.xml
+elster_*.xml
+/tmp/elster/
+
+# PDF exports (invoices, reports, receipts)
+/tmp/exports/
+/tmp/pdfs/
+/public/invoices/
+/public/exports/
+
+# Local database and storage
 /storage/*
 !/storage/.keep
-/tmp/storage/*
-!/tmp/storage/
-!/tmp/storage/.keep
 
+# Temporary files
+/tmp/*
+!/tmp/.keep
+!/tmp/pids/
+!/tmp/pids/.keep
+/tmp/cache/
+/tmp/backups/
+/tmp/snapshots/
+
+# Logs
+/log/*
+!/log/.keep
+
+# Assets (generated)
 /public/assets
+/public/packs
+/public/packs-test
 
-# Ignore master key for decrypting credentials and more.
-/config/master.key
-# Ignore .env file containing credentials.
-.env*
+# Bundler, Ruby, Node
+/.bundle
+/vendor/bundle
+/node_modules
+/yarn-error.log
+/npm-debug.log
+/package-lock.json
 
-# Ignore Mac and Linux file system files
-*.swp
+# macOS
 .DS_Store
-.env*
+.AppleDouble
+.LSOverride
+._*
 
-# Finanzguru export (private)
-20250623-Export-Alle_Buchungen.xlsx
+# Linux
+*~
+.directory
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editors
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.iml
+*.sublime-project
+*.sublime-workspace
+
+# Test coverage
+/coverage/
+/.nyc_output/
+
+# RSpec
+/spec/tmp/
+
+# Sidekiq
+/dump.rdb
